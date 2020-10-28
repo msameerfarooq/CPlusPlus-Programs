@@ -1,43 +1,65 @@
 // There are two strings S and V and we need to find the length of shortest subsequence in S
 // such that it is not a subsequence in V.
 
+
+
+
 #include<iostream>
+#include<algorithm>
 using namespace std;
-
-int solve(string S, string V)
+int helper(string s, string v, int n, int m, int **dp)
 {
-    int L1 = S.length();
-    int L2 = V.length();
-    int** DPArray = new int*[L1+1];
-	
-    for(int i=0; i<=L1; i++)
-        DPArray[i] = new int[L2+1];
-
-    for(int i=0; i<=L1; i++)
-        DPArray[i][L2] = 1; 
-
-    for(int i=0; i<=L2; i++)
-        DPArray[L1][i] = 10001;
-
-    for(int i=L1-1; i>=0; i--)
+    if (n == 0)
+	{
+		return 1001;
+	}
+	if (m <= 0)
+	{
+		return 1;
+	}
+    if(dp[n][m]>=0)
     {
-        for(int j=L2-1; j>=0; j--)
+        return dp[n][m];
+    }
+    int ans;
+    int option1=helper(s.substr(1), v, n-1, m, dp);
+	int i = 0;
+	for (; i < m; i++)
+	{
+		if (s[0] == v[i])
+		{
+			break;
+		}
+	}
+	if (i == m)
+	{
+		return 1;
+	}
+    int option2=1 + helper(s.substr(1), v.substr(i+1), n-1, m-i-1, dp);
+	ans= min(option1, option2);
+    dp[n][m]=ans;
+    return ans;
+}
+int solve(string s, string v)
+{
+    int n=s.length();
+    int m=v.length();
+	int **dp=new int* [n+1];
+    for(int i=0; i<n+1; i++)
+    {
+        dp[i]=new int [m+1];
+        for(int j=0; j<m+1; j++)
         {
-            int k = j;
-            for(; k<L2; k++)
-            {
-                if(S[i]==V[k])
-                    break;
-            }
-            if(k==L2)
-                DPArray[i][j] = 1;
-            else
-                DPArray[i][j] = min(DPArray[i+1][j], 1+DPArray[i+1][k+1]);
+            dp[i][j]=-1;
         }
     }
-    return DPArray[0][0];
+    return helper(s, v, n, m, dp);
+    for(int i=0; i<s.length()+1; i++)
+    {
+        delete[]dp[i];
+    }
+    delete[]dp;
 }
-
 int main()
 {
 	string s1, s2;
